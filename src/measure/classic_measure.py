@@ -34,5 +34,29 @@ def get_lwh(
     width_mm = min(dim1, dim2)
 
     return length_mm, width_mm, height_mm
+
+
+def get_roundness(mask: np.ndarray, verbose: bool = False) -> float | tuple[float, float, float] | None:
+    object_mask = (mask * 255).astype(np.uint8)
+    contours, _ = cv2.findContours(
+        object_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
+    if not len(contours):
+        print('No object detected on the conveyor')
+        return None
+
+    largest_contour = max(contours, key=cv2.contourArea)
+    _, r_enc_px = cv2.minEnclosingCircle(largest_contour)  # firs output is (x, y) coordinates of center of the circle
+
+    clean_mask = np.zeros_like(object_mask)
+    cv2.drawContours(clean_mask, [largest_contour], -1, 255, -1)
+    dist_map = cv2.distanceTransform(clean_mask, cv2.DIST_L2, 5)
+    r_ins_px = dist_map.max()  # use cv2.minMaxLoc in center location is needed
+
+    roundness = r_ins_px / r_enc_px
+    if verbose:
+        return r_ins_px, r_enc_px, roundness
+    return roundness
+
 def depth_mask(depth_img: np.ndarray, camera_height: float, height_thresh: float) -> np.ndarray:
     return (depth_img > 0) & (depth_img < (camera_height - height_thresh))
