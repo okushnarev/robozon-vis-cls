@@ -58,7 +58,7 @@ def get_roundness(mask: np.ndarray, verbose: bool = False) -> float | tuple[floa
     clean_mask = np.zeros_like(object_mask)
     cv2.drawContours(clean_mask, [largest_contour], -1, 255, -1)
     dist_map = cv2.distanceTransform(clean_mask, cv2.DIST_L2, 5)
-    r_ins_px = dist_map.max()  # use cv2.minMaxLoc in center location is needed
+    r_ins_px = float(dist_map.max())  # use cv2.minMaxLoc in center location is needed
 
     roundness = r_ins_px / r_enc_px
     if verbose:
