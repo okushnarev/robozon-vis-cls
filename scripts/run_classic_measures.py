@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, RawTextHelpFormatter
 from pathlib import Path
 
+
 def parse_args():
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument('--input-dir', '-i', type=Path, default=Path('datasets'),
@@ -10,8 +11,7 @@ def parse_args():
                              'Example:\n'
                              '      for -id datasets/gazebo\n'
                              '      found datasets/gazebo/pen/0.hdf5\n'
-                             '      group name is pen'
-                        )
+                             '      group name is pen')
     parser.add_argument('--output-dir', '-o', type=Path, default=Path('output'),
                         help='Path to the directory to save the output files')
     parser.add_argument('--filename', '-f', type=str, default=None,
@@ -33,8 +33,10 @@ def parse_args():
 
     return parser.parse_args()
 
+
 def main():
     args = parse_args()
+
 
 if __name__ == '__main__':
     main()
