@@ -1,10 +1,13 @@
 import sys
 from pathlib import Path
 
+import pandas as pd
+
 # Add project root to PATH
 if (project_root := str(Path.cwd())) not in sys.path:
     sys.path.append(project_root)
 
+import json
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
 from typing import Any
 
@@ -80,6 +83,33 @@ def get_measurements(p: Path, intrinsics: dict[str, float], cfg: Namespace) -> d
 
 def main():
     args = parse_args()
+
+    with open(args.intrinsics, 'r') as intrinsics_file:
+        intrinsics = json.load(intrinsics_file)
+
+    # Resolve paths
+    if args.filename:
+        if (p := args.input_dir / f'{args.filename}.hdf5').exists():
+            paths = [p]
+        else:
+            raise FileNotFoundError(f'No such file: {p}')
+    else:
+        paths = list(args.input_dir.rglob('*.hdf5'))
+        if not paths:
+            raise FileNotFoundError(f'Cannot find any .hdf5 files in {args.input_dir}')
+
+    # Find measurements
+    outputs: list[dict[str, Any]] = [get_measurements(path, intrinsics, args) for path in paths]
+
+    # Resolve output
+    if args.out_csv:
+        df = pd.DataFrame(outputs)
+        args.output_dir.mkdir(exist_ok=True, parents=True)
+        df.to_csv(args.output_dir / f'{args.out_csv}.csv', index=False)
+
+    if args.print_output:
+        for output in outputs:
+            print(output)
 
 
 if __name__ == '__main__':
