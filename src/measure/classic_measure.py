@@ -13,7 +13,7 @@ def get_lwh(
         camera_height: float,
         image_h: float,
         image_w: float,
-) -> tuple[float, float, float] | None:
+) -> tuple[float, float, float]:
     u_grid, v_grid = np.meshgrid(np.arange(image_w), np.arange(image_h))
 
     Z = depth[mask].astype(float)
@@ -21,8 +21,8 @@ def get_lwh(
     V = v_grid[mask]
 
     if not len(Z):
-        return None
         logger.warning('No object detected on the conveyor')
+        return (float('nan'),) * 3
 
     # Apply the mathematical pinhole equations to find X and Y in millimeters
     X = (U - intrinsics['cx']) * Z / intrinsics['fx']
@@ -40,14 +40,17 @@ def get_lwh(
     return length_mm, width_mm, height_mm
 
 
-def get_roundness(mask: np.ndarray, verbose: bool = False) -> float | tuple[float, float, float] | None:
+def get_roundness(mask: np.ndarray, verbose: bool = False) -> float | tuple[float, float, float]:
     object_mask = (mask * 255).astype(np.uint8)
     contours, _ = cv2.findContours(
         object_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
     if not len(contours):
-        return None
         logger.warning('No object detected on the conveyor')
+        if verbose:
+            return (float('nan'),) * 3
+        else:
+            return float('nan')
 
     largest_contour = max(contours, key=cv2.contourArea)
     _, r_enc_px = cv2.minEnclosingCircle(largest_contour)  # firs output is (x, y) coordinates of center of the circle
