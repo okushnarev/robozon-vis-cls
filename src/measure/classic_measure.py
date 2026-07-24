@@ -1,5 +1,9 @@
+import logging
+
 import cv2
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 def get_lwh(
@@ -17,8 +21,8 @@ def get_lwh(
     V = v_grid[mask]
 
     if not len(Z):
-        print('No object detected on the conveyor')
         return None
+        logger.warning('No object detected on the conveyor')
 
     # Apply the mathematical pinhole equations to find X and Y in millimeters
     X = (U - intrinsics['cx']) * Z / intrinsics['fx']
@@ -42,8 +46,8 @@ def get_roundness(mask: np.ndarray, verbose: bool = False) -> float | tuple[floa
         object_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
     if not len(contours):
-        print('No object detected on the conveyor')
         return None
+        logger.warning('No object detected on the conveyor')
 
     largest_contour = max(contours, key=cv2.contourArea)
     _, r_enc_px = cv2.minEnclosingCircle(largest_contour)  # firs output is (x, y) coordinates of center of the circle
