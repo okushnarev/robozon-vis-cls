@@ -105,7 +105,9 @@ def main():
     if args.out_csv:
         df = pd.DataFrame(outputs)
         args.output_dir.mkdir(exist_ok=True, parents=True)
-        df.to_csv(args.output_dir / f'{args.out_csv}.csv', index=False)
+        csv_path = args.output_dir / f'{args.out_csv}.csv'
+        df.to_csv(csv_path, index=False)
+        print(f'Successfully saved to {csv_path}')
 
     if args.print_output:
         for output in outputs:
