@@ -65,5 +65,6 @@ def get_roundness(mask: np.ndarray, verbose: bool = False) -> float | tuple[floa
         return r_ins_px, r_enc_px, roundness
     return roundness
 
+
 def depth_mask(depth_img: np.ndarray, camera_height: float, height_thresh: float) -> np.ndarray:
     return (depth_img > 0) & (depth_img < (camera_height - height_thresh))
