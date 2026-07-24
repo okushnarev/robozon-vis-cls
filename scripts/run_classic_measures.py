@@ -6,6 +6,12 @@ if (project_root := str(Path.cwd())) not in sys.path:
     sys.path.append(project_root)
 
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
+from typing import Any
+
+import h5py
+import numpy as np
+
+from src.measure.classic_measure import depth_mask, get_lwh, get_roundness
 
 
 def parse_args():
@@ -38,6 +44,38 @@ def parse_args():
                           help='Threshold (in mm) for depth object masking')
 
     return parser.parse_args()
+
+
+def get_measurements(p: Path, intrinsics: dict[str, float], cfg: Namespace) -> dict[str, Any]:
+    with h5py.File(p, 'r') as data:
+        depth: np.ndarray = data['depth'][:] * 1000  # mm
+
+    im_h, im_w = depth.shape
+
+    valid_mask = depth_mask(depth, cfg.camera_height, cfg.height_threshold)
+
+    l, w, h = get_lwh(
+        mask=valid_mask,
+        depth=depth,
+        intrinsics=intrinsics,
+        camera_height=cfg.camera_height,
+        image_h=im_h,
+        image_w=im_w,
+    )
+
+    # roundness
+    r_ins_px, r_enc_px, roundness = get_roundness(valid_mask, verbose=True)
+
+    return {
+        'group':     p.parent.name,
+        'filename':  p.stem,
+        'length':    l,
+        'width':     w,
+        'height':    h,
+        'roundness': roundness,
+        'r_enc_px':  r_enc_px,
+        'r_ins_px':  r_ins_px,
+    }
 
 
 def main():
