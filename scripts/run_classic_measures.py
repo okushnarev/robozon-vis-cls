@@ -21,6 +21,16 @@ def parse_args():
                         help='Write output to CSV file to --output-dir (-o)')
     parser.add_argument('--print-output', action='store_true',
                         help='Print the output to stdout')
+
+    cam_args = parser.add_argument_group('Camera arguments')
+    cam_args.add_argument('--intrinsics', type=Path, default=None, required=True,
+                          help='Path to the camera intrinsics file\n'
+                               'Expected a .json file with fx, fy, cx, cy, s keys\n')
+    cam_args.add_argument('--camera-height', type=float, default=1000,
+                          help='Height of the camera (in mm) above target plane')
+    cam_args.add_argument('--height-threshold', type=float, default=10,
+                          help='Threshold (in mm) for depth object masking')
+
     return parser.parse_args()
 
 def main():
