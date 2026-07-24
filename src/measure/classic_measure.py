@@ -5,7 +5,7 @@ import numpy as np
 def get_lwh(
         mask: np.ndarray,
         depth: np.ndarray,
-        intrinsics: list[list[float]],
+        intrinsics: dict[str, float],
         camera_height: float,
         image_h: float,
         image_w: float,
@@ -83,9 +83,12 @@ def main():
     cx = 320 * s_x
     cy = 240 * s_y
 
-    K = [[fx, 0, cx],
-         [0, fy, cy],
-         [0, 0, 1]]
+    intrinsics = {
+        'fx': fx,
+        'fy': fy,
+        'cx': cx,
+        'cy': cy,
+    }
 
     camera_height: float = 1000  # mm
     height_thresh: float = 10  # mm
@@ -95,7 +98,7 @@ def main():
     l, w, h = get_lwh(
         mask=valid_mask,
         depth=depth,
-        intrinsics=K,
+        intrinsics=intrinsics,
         camera_height=camera_height,
         image_h=im_h,
         image_w=im_w,
