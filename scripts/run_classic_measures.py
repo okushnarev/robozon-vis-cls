@@ -1,5 +1,11 @@
-from argparse import ArgumentParser, RawDescriptionHelpFormatter, RawTextHelpFormatter
+import sys
 from pathlib import Path
+
+# Add project root to PATH
+if (project_root := str(Path.cwd())) not in sys.path:
+    sys.path.append(project_root)
+
+from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
 
 
 def parse_args():
