@@ -94,6 +94,14 @@ def rasterize_depth(
     :param mask: Boolean mask matching the original depth map dimensions, defaults to None
 
     :return: Projected 2D depth map of shape (h, w)
+
+    Example:
+    mapping = compute_grid_mapping(
+        depth, intrinsics, mask
+    )
+    img = rasterize_depth(
+        depth, mapping, mask
+    )
     """
     rows, cols, sort_idx, (h, w) = mapping
     if h == 0 or w == 0:
@@ -120,6 +128,14 @@ def rasterize_colors(
     :param mask: Boolean mask matching the original colors/depth dimensions, defaults to None
 
     :return: Projected 2D color image of shape (h, w, 3)
+
+    Example:
+    mapping = compute_grid_mapping(
+        depth, intrinsics, mask
+    )
+    img = rasterize_colors(
+        colors, mapping, mask
+    )
     """
     rows, cols, sort_idx, (h, w) = mapping
     if h == 0 or w == 0:
