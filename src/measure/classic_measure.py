@@ -11,9 +11,8 @@ def get_lwh(
         depth: np.ndarray,
         intrinsics: dict[str, float],
         camera_height: float,
-        image_h: float,
-        image_w: float,
 ) -> tuple[float, float, float]:
+    image_h, image_w = depth.shape
     u_grid, v_grid = np.meshgrid(np.arange(image_w), np.arange(image_h))
 
     Z = depth[mask].astype(float)

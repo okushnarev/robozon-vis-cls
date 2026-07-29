@@ -53,8 +53,6 @@ def get_measurements(p: Path, intrinsics: dict[str, float], cfg: Namespace) -> d
     with h5py.File(p, 'r') as data:
         depth: np.ndarray = data['depth'][:] * 1000  # mm
 
-    im_h, im_w = depth.shape
-
     valid_mask = depth_mask(depth, cfg.camera_height, cfg.height_threshold)
 
     l, w, h = get_lwh(
@@ -62,8 +60,6 @@ def get_measurements(p: Path, intrinsics: dict[str, float], cfg: Namespace) -> d
         depth=depth,
         intrinsics=intrinsics,
         camera_height=cfg.camera_height,
-        image_h=im_h,
-        image_w=im_w,
     )
 
     # roundness
