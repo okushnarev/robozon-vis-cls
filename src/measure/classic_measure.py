@@ -14,7 +14,6 @@ def get_lwh(
         intrinsics: dict[str, float],
         camera_height: float,
 ) -> tuple[float, float, float]:
-
     X, Y, Z = unproject_depth(depth, intrinsics, mask)
 
     if not len(Z):
