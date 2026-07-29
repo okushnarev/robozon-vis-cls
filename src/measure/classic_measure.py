@@ -3,6 +3,8 @@ import logging
 import cv2
 import numpy as np
 
+from src.utils import unproject_depth
+
 logger = logging.getLogger(__name__)
 
 
@@ -12,21 +14,12 @@ def get_lwh(
         intrinsics: dict[str, float],
         camera_height: float,
 ) -> tuple[float, float, float]:
-    image_h, image_w = depth.shape
-    u_grid, v_grid = np.meshgrid(np.arange(image_w), np.arange(image_h))
 
-    Z = depth[mask].astype(float)
-    U = u_grid[mask]
-    V = v_grid[mask]
+    X, Y, Z = unproject_depth(depth, intrinsics, mask)
 
     if not len(Z):
         logger.warning('No object detected on the conveyor')
         return (float('nan'),) * 3
-
-    # Apply the mathematical pinhole equations to find X and Y in millimeters
-    X = (U - intrinsics['cx']) * Z / intrinsics['fx']
-    Y = (V - intrinsics['cy']) * Z / intrinsics['fy']
-
     # Measurements
     height_mm = float(camera_height - np.min(Z))
 
