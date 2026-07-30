@@ -25,3 +25,17 @@ def get_valid_instances(
     idx = np.unique(instance_segmaps[:, [l_pad, -r_pad]])
 
     return [d for d in instance_attr_maps if d['idx'] not in idx]
+
+
+def update_json_recursively(obj: dict[Any, Any], target_key: str, new_value: Any) -> dict[Any, Any]:
+    """Recursively updates a specific key with a new value in a nested dict or list"""
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            if key == target_key:
+                obj[key] = new_value
+            else:
+                update_json_recursively(value, target_key, new_value)
+    elif isinstance(obj, list):
+        for item in obj:
+            update_json_recursively(item, target_key, new_value)
+    return obj
