@@ -85,9 +85,6 @@ def parse_args():
 
 def train():
     args = parse_args()
-    if not args.model_size in MODEL_MAP:
-        raise ValueError(f'No such module size \'{args.model_size}\' exists in MODEL_MAP.\n'
-                         f'Available keys: {MODEL_MAP.keys()}')
     ModelClass = MODEL_MAP[args.model_size]
     print(f'Loading pre-trained {args.model_size.upper()} model for {args.num_classes} class(es)...')
     model = ModelClass(num_classes=args.num_classes)
