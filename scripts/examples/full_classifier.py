@@ -1,8 +1,13 @@
 import json
+import sys
 from pathlib import Path
 
 import h5py
 import numpy as np
+
+# Add project root to PATH
+if (project_root := str(Path.cwd())) not in sys.path:
+    sys.path.append(project_root)
 
 from src.classifiers import RFDETRClassifier
 from src.measure.measurers import ClassicMeasurer
