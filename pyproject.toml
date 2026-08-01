@@ -5,17 +5,19 @@ description = "Visual items classifier for robozon competition"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "datumaro>=1.13.3",
+    "datumaro>=1.13.6",
     "h5py>=3.16.0",
-    "jupyter>=1.1.1",
-    "matplotlib>=3.11.1",
-    "numpy>=2.5.1",
+    "numpy>=2.2.6",
     "opencv-python>=5.0.0.93",
-    "pandas<3.0.0",
-    "plotly>=6.9.0",
+    "pandas>=2.3.3",
     "rfdetr[loggers,train]>=1.9.0",
-    "scipy>=1.18.0",
     "supervision>=0.29.1",
-    "torch<2.12.0",
+    "torch<2.12",
     "trackers>=2.5.0.post0",
+]
+
+[project.optional-dependencies]
+analytics = [
+    "jupyter>=1.1.1",
+    "plotly>=6.9.0",
 ]
