@@ -3,7 +3,7 @@ name = "robozon-vis-cls"
 version = "0.1.0"
 description = "Visual items classifier for robozon competition"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
     "datumaro>=1.13.3",
     "h5py>=3.16.0",
