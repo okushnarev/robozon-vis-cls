@@ -21,7 +21,9 @@ class ReturnData:
 class BaseClassifier:
     def step(self, rgbd_img: np.ndarray) -> dict[int, ReturnData]:
         raise NotImplementedError
-
+    
+    def reset(self) -> None:
+        raise NotImplementedError
 
 class RFDETRClassifier(BaseClassifier):
     def __init__(
@@ -112,3 +114,10 @@ class RFDETRClassifier(BaseClassifier):
                     )
 
         return self._prep_return(detections.tracker_id.tolist())
+    
+    def reset(self) -> None:
+        self.tracker.reset()
+        self.item_params = {}
+        self.img_shape_xy = None
+        self.img_center = None
+        
