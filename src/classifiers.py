@@ -37,6 +37,25 @@ class RFDETRClassifier(BaseClassifier):
             fps: int,
             lost_track_buffer: int = 15,
     ):
+        """
+        :param model: The RFDETR model used for object detection
+        :param detection_threshold: Confidence threshold for detection. Only
+            detections with a confidence above this threshold are registered.
+            Typically set to 0.5
+        :param roundness_threshold: Minimum ratio of the enclosing circle's radius
+            to the inscribed circle's radius of the item's footprint to classify
+            it as round
+        :param measurer: The BaseMeasurer instance that implements measurements
+            for length, width, height, and roundness
+        :param margin_px: Margin around the image center line that defines the
+            measurement area. When an object's center is within this area, its
+            parameters are evaluated
+        :param expand_px: Number of pixels by which to expand the detection bounding
+            box. This provides robustness in measurements in case of loose detections.
+        :param fps: Camera frame rate, used by the tracker
+        :param lost_track_buffer: Number of frames the tracker waits before
+            considering an object lost
+        """
         self.model = model
 
         self.detection_threshold = detection_threshold
@@ -66,6 +85,14 @@ class RFDETRClassifier(BaseClassifier):
         return {idx: self.item_params[idx] for idx in visible_classes if idx >= 0 and idx in self.item_params}
 
     def step(self, rgbd_img: np.ndarray) -> dict[int, ReturnData]:
+        """
+        Process a single image from the camera
+
+        :param rgbd_img: Array of shape (H, W, C) where C represents the channels.
+            The first three channels are expected to be RGB, and the fourth channel is depth, with a data type of np.float32
+        :return: Dictionary containing unique item IDs mapped to their corresponding statistics.
+            Only returns items that have statistics and are detected in the current frame
+        """
         colors = rgbd_img[:, :, :3].astype(np.uint8)
         depth = rgbd_img[:, :, 3]
         self._check_image_params_unset(colors)
