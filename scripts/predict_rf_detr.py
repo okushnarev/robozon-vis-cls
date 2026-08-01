@@ -72,7 +72,6 @@ def predict():
     else:
         ds_path = Path(config['train_config']['dataset_dir']) / 'test'
 
-    img_path = args.out_dir / 'images'
 
     ds = sv.DetectionDataset.from_coco(
         images_directory_path=ds_path,
@@ -80,6 +79,7 @@ def predict():
     )
 
     if args.save_img:
+        img_path = args.out_dir / 'images'
         true_img_path = img_path / 'true'
         pred_img_path = img_path / 'pred'
 
