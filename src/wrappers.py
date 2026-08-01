@@ -1,8 +1,9 @@
 import json
 from pathlib import Path
+from typing import Literal
 
 from rfdetr import RFDETR
-from typing import Literal
+
 
 class RFDETRModelWrapper:
     @staticmethod
