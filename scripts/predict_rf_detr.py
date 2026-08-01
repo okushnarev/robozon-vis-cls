@@ -42,6 +42,12 @@ def parse_args():
     )
 
     parser.add_argument(
+        '--save-img',
+        action='store_true',
+        help='Set flag to save to --out-dir true and predict annotated images'
+    )
+
+    parser.add_argument(
         '--ckpt-type',
         type=str,
         default='checkpoint_best_total',
@@ -66,26 +72,28 @@ def predict():
         ds_path = Path(config['train_config']['dataset_dir']) / 'test'
 
     img_path = args.out_dir / 'images'
-    true_img_path = img_path / 'true'
-    pred_img_path = img_path / 'pred'
-
-    true_img_path.mkdir(exist_ok=True, parents=True)
-    pred_img_path.mkdir(exist_ok=True, parents=True)
 
     ds = sv.DetectionDataset.from_coco(
         images_directory_path=ds_path,
         annotations_path=f'{ds_path}/_annotations.coco.json',
     )
 
-    path, image, annotations = ds[0]
-    image = Image.open(path)
-    text_scale = sv.calculate_optimal_text_scale(resolution_wh=image.size)
-    thickness = sv.calculate_optimal_line_thickness(resolution_wh=image.size)
+    if args.save_img:
+        true_img_path = img_path / 'true'
+        pred_img_path = img_path / 'pred'
 
-    bbox_annotator = sv.BoxAnnotator(thickness=thickness)
-    label_annotator = sv.LabelAnnotator(
-        text_color=sv.Color.BLACK,
-        text_scale=text_scale)
+        true_img_path.mkdir(exist_ok=True, parents=True)
+        pred_img_path.mkdir(exist_ok=True, parents=True)
+
+        path, image, annotations = ds[0]
+        image = Image.open(path)
+        text_scale = sv.calculate_optimal_text_scale(resolution_wh=image.size)
+        thickness = sv.calculate_optimal_line_thickness(resolution_wh=image.size)
+
+        bbox_annotator = sv.BoxAnnotator(thickness=thickness)
+        label_annotator = sv.LabelAnnotator(
+            text_color=sv.Color.BLACK,
+            text_scale=text_scale)
 
     targets = []
     predictions = []
@@ -93,36 +101,32 @@ def predict():
         image = Image.open(path)
         detections = model.predict(image, threshold=0.5)
 
-        if text_scale is None:
-            text_scale = sv.calculate_optimal_text_scale(resolution_wh=image.size)
-        if thickness is None:
-            thickness = sv.calculate_optimal_line_thickness(resolution_wh=image.size)
+        if args.save_img:
+            annotations_labels = [
+                f'{ds.classes[class_id]}'
+                for class_id
+                in annotations.class_id
+            ]
 
-        annotations_labels = [
-            f'{ds.classes[class_id]}'
-            for class_id
-            in annotations.class_id
-        ]
+            ann_image = image.copy()
+            ann_image = bbox_annotator.annotate(ann_image, annotations)
+            ann_image = label_annotator.annotate(ann_image, annotations, annotations_labels)
+            ann_image.save(
+                true_img_path / f'{Path(path).stem}.png'
+            )
 
-        ann_image = image.copy()
-        ann_image = bbox_annotator.annotate(ann_image, annotations)
-        ann_image = label_annotator.annotate(ann_image, annotations, annotations_labels)
-        ann_image.save(
-            true_img_path / f'{Path(path).stem}.png'
-        )
+            detections_labels = [
+                f'{ds.classes[class_id]} {confidence:.2f}'
+                for class_id, confidence
+                in zip(detections.class_id, detections.confidence)
+            ]
 
-        detections_labels = [
-            f'{ds.classes[class_id]} {confidence:.2f}'
-            for class_id, confidence
-            in zip(detections.class_id, detections.confidence)
-        ]
-
-        det_image = image.copy()
-        det_image = bbox_annotator.annotate(det_image, detections)
-        det_image = label_annotator.annotate(det_image, detections, detections_labels)
-        det_image.save(
-            pred_img_path / f'{Path(path).stem}.png'
-        )
+            det_image = image.copy()
+            det_image = bbox_annotator.annotate(det_image, detections)
+            det_image = label_annotator.annotate(det_image, detections, detections_labels)
+            det_image.save(
+                pred_img_path / f'{Path(path).stem}.png'
+            )
 
         targets.append(annotations)
         predictions.append(detections)
