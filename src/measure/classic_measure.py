@@ -20,15 +20,15 @@ def get_lwh(
         logger.warning('No object detected on the conveyor')
         return (float('nan'),) * 3
     # Measurements
-    height_mm = float(camera_height - np.min(Z))
+    height = float(camera_height - np.min(Z))
 
     points_2d = np.stack((X, Y), axis=-1).astype(np.float32)
     rect = cv2.minAreaRect(points_2d)
     dim1, dim2 = rect[1]
-    length_mm = max(dim1, dim2)
-    width_mm = min(dim1, dim2)
+    length = max(dim1, dim2)
+    width = min(dim1, dim2)
 
-    return length_mm, width_mm, height_mm
+    return length, width, height
 
 
 def get_roundness(mask: np.ndarray, verbose: bool = False) -> float | tuple[float, float, float]:
