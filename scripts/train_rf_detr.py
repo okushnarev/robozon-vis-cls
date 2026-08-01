@@ -2,15 +2,24 @@ import argparse
 from pathlib import Path
 
 import torch
-from rfdetr import RFDETRBase, RFDETRLarge, RFDETRMedium, RFDETRNano, RFDETRSmall
+from rfdetr import RFDETRNano, RFDETRSmall, RFDETRMedium, RFDETRLarge
+from rfdetr import RFDETRSegNano, RFDETRSegSmall, RFDETRSegMedium, RFDETRSegLarge
 
 # Map strings to the appropriate class definitions
 MODEL_MAP = {
-    'nano':   RFDETRNano,
-    'small':  RFDETRSmall,
-    'medium': RFDETRMedium,
-    'base':   RFDETRBase,
-    'large':  RFDETRLarge,
+    'detection': {
+        'nano':   RFDETRNano,
+        'small':  RFDETRSmall,
+        'medium': RFDETRMedium,
+        'large':  RFDETRLarge,
+    },
+    'segmentation': {
+        'nano':   RFDETRSegNano,
+        'small':  RFDETRSegSmall,
+        'medium': RFDETRSegMedium,
+        'large':  RFDETRSegLarge,
+    }
+
 }
 
 
@@ -30,7 +39,7 @@ def parse_args():
         '--model-size',
         type=str,
         default='medium',
-        choices=MODEL_MAP.keys(),
+        choices={k for n in MODEL_MAP for k in MODEL_MAP[n].keys()},
         help='Which RF-DETR model size to fine-tune'
     )
     parser.add_argument(
@@ -38,6 +47,13 @@ def parse_args():
         type=int,
         default=1,
         help='Number of classes in dataset (e.g., 1 for "conveyor_object")'
+    )
+
+    parser.add_argument(
+        '--mode',
+        type=str,
+        default='medium',
+        choices=MODEL_MAP.keys()
     )
 
     # Hyperparameters
@@ -85,7 +101,7 @@ def parse_args():
 
 def train():
     args = parse_args()
-    ModelClass = MODEL_MAP[args.model_size]
+    ModelClass = MODEL_MAP[args.mode][args.model_size]
     print(f'Loading pre-trained {args.model_size.upper()} model for {args.num_classes} class(es)...')
     model = ModelClass(num_classes=args.num_classes)
 
