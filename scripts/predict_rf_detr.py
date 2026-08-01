@@ -1,5 +1,6 @@
 import argparse
 import json
+import pickle
 from pathlib import Path
 
 import supervision as sv
@@ -130,6 +131,10 @@ def predict():
 
         targets.append(annotations)
         predictions.append(detections)
+
+    # Predictions
+    with open(args.out_dir / 'preictions.pkl', 'wb') as f:
+        pickle.dump(predictions, f)
 
     # Metrics
     map_metric = MeanAveragePrecision()
