@@ -76,7 +76,7 @@ def compute_grid_mapping(
 
     # Sort in descending order of Z (farthest first)
     # Closer points will overwrite farther points when assigned to the grid
-    sort_indices = np.argsort(Z, descending=True)
+    sort_indices = np.argsort(-Z)
 
     return row_idx[sort_indices], col_idx[sort_indices], sort_indices, (h, w)
 
