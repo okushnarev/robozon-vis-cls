@@ -103,6 +103,7 @@ class RFDETRClassifier(BaseClassifier):
         for idx, det in enumerate(detections):
             det_idx = det[4]
             det_class = det[5]['class_name']
+            det_mask = det[1]
 
             lt_corner = det[0][:2].copy()
             rb_corner = det[0][2:].copy()
@@ -124,7 +125,12 @@ class RFDETRClassifier(BaseClassifier):
                         slice(expanded_bbox_lt[1], expanded_bbox_rb[1] + 1),
                         slice(expanded_bbox_lt[0], expanded_bbox_rb[0] + 1)
                     )
-                    l, w, h, roundness = self.measurer.measure(depth[slice_idx])
+
+                    det_depth = depth.copy()
+                    if det_mask is not None:
+                        det_depth = depth * det_mask
+
+                    l, w, h, roundness = self.measurer.measure(det_depth[slice_idx])
 
                     is_round = roundness > self.roundness_threshold
 
