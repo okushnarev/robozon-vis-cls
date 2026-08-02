@@ -1,5 +1,6 @@
 import json
 import sys
+from argparse import ArgumentParser
 from pathlib import Path
 
 import cv2
@@ -16,16 +17,61 @@ from src.classifiers import RFDETRClassifier
 from src.measure.measurers import ClassicMeasurer
 from src.wrappers import load_model
 
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument(
+        '--ckpt-dir',
+        type=Path,
+        required=True,
+        help='Path to dir with model\'s checkpoint and config'
+    )
+    parser.add_argument(
+        '--ckpt-type',
+        type=str,
+        default='last.ckpt',
+        help='Checkpoint type'
+    )
+    parser.add_argument(
+        '--intrinsics',
+        type=Path,
+        default=None,
+        help='Path to the camera intrinsics file\n'
+             'Expected a .json file with fx, fy, cx, cy, s keys\n')
+    parser.add_argument(
+        '--ds-dir',
+        type=Path,
+        required=True,
+        help='Path where datasets are stored'
+    )
+    parser.add_argument(
+        '--video-dir',
+        type=Path,
+        default=Path('videos'),
+        help='Path where to output videos. Point to root video dir. Children directories are auto resolved'
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
-    exp_name = '1'
-    ckpt_dir = Path('checkpoints/seg_1/')
-    ds_dir = Path('datasets/prep/gazebo_vid/') / exp_name
-    video_dir = Path('videos') / ds_dir.parent.name / exp_name
+    args = parse_args()
+    exp_name = args.ds_dir.name
+    video_dir = args.video_dir / args.ds_dir.parent.name / exp_name
     video_dir.mkdir(exist_ok=True, parents=True)
 
-    intrinsics_path = Path('params/intrinsics_1280.json')
-    with open(intrinsics_path, 'r') as intrinsics_file:
-        intrinsics = json.load(intrinsics_file)
+    if args.intrinsics:
+        with open(args.intrinsics, 'r') as intrinsics_file:
+            intrinsics = json.load(intrinsics_file)
+    else:
+        # Fall back to default
+        intrinsics = {
+            "fx": 710.0132366,
+            "fy": 710.132366,
+            "cx": 640.0,
+            "cy": 480.0,
+            "s":  0
+        }
 
     measurer = ClassicMeasurer(
         camera_height=1,
@@ -33,10 +79,9 @@ if __name__ == '__main__':
         intrinsics=intrinsics,
     )
 
-    ckpt_type = 'last.ckpt'
     model = load_model(
-        ckpt_dir=ckpt_dir,
-        ckpt_type=ckpt_type,
+        ckpt_dir=args.ckpt_dir,
+        ckpt_type=args.ckpt_type,
         mode='segmentation',
     )
 
@@ -53,7 +98,7 @@ if __name__ == '__main__':
         store_detections=True,
     )
 
-    hdf_paths_sorted = sorted(list(ds_dir.glob('*.hdf5')), key=lambda x: int(x.stem))
+    hdf_paths_sorted = sorted(list(args.ds_dir.glob('*.hdf5')), key=lambda x: int(x.stem))
 
     box_annotator = sv.BoxAnnotator()
     label_annotator = sv.LabelAnnotator()

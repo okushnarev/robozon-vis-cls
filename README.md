@@ -74,8 +74,10 @@ uv run scripts/predict_rf_detr.py \
 ```
 
 ### Try Tracking & Full Pipeline of Classifier
-To evaluate the 2D tracking performance or run baseline performance evaluations, use the example scripts:
+To evaluate classifier performance use the example scripts:
 ```bash
-uv run scripts/examples/full_classifier.py
-uv run scripts/examples/tracking.py
+uv run scripts/examples/full_classifier.py \
+  --ckpt-dir checkpoints/rf_detr \
+  --ds-dir datasets/prep/gazebo_vid/2
 ```
+
