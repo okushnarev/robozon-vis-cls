@@ -48,7 +48,7 @@ class RFDETRClassifier(BaseClassifier):
             Typically set to 0.5
         :param roundness_threshold: Minimum ratio of the enclosing circle's radius
             to the inscribed circle's radius of the item's footprint to classify
-            it as round
+            it as round (>= roundness_threshold)
         :param lwh_min: Minimum boundaries for item dimensions
         :param lwh_max: Maximum boundaries for item dimensions
         :param measurer: The BaseMeasurer instance that implements measurements
@@ -147,7 +147,7 @@ class RFDETRClassifier(BaseClassifier):
                         or (det_lwh > self.lwh_max).any()
                     )
 
-                    is_round = roundness > self.roundness_threshold
+                    is_round = roundness >= self.roundness_threshold
 
                     self.item_params[det_idx] = ReturnData(
                         length=l,
