@@ -120,8 +120,6 @@ class RFDETRClassifier(BaseClassifier):
                     expanded_bbox_lt = np.clip(expanded_bbox_lt, (0, 0), self.img_shape_xy)
                     expanded_bbox_rb = np.clip(expanded_bbox_rb, (0, 0), self.img_shape_xy)
 
-                    detections.xyxy[idx] = np.array([*expanded_bbox_lt, *expanded_bbox_rb])
-
                     slice_idx = (
                         slice(expanded_bbox_lt[1], expanded_bbox_rb[1] + 1),
                         slice(expanded_bbox_lt[0], expanded_bbox_rb[0] + 1)
