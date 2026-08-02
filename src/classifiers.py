@@ -1,8 +1,10 @@
+from copy import deepcopy
 from dataclasses import dataclass
 
 import numpy as np
 from rfdetr import RFDETR
 from trackers import ByteTrackTracker
+from supervision import Detections
 
 from src.measure.measurers import BaseMeasurer
 
@@ -40,6 +42,7 @@ class RFDETRClassifier(BaseClassifier):
             expand_px: int,
             fps: int,
             lost_track_buffer: int = 15,
+            store_detections: bool = False,
     ):
         """
         :param model: The RFDETR model used for object detection
@@ -61,6 +64,8 @@ class RFDETRClassifier(BaseClassifier):
         :param fps: Camera frame rate, used by the tracker
         :param lost_track_buffer: Number of frames the tracker waits before
             considering an object lost
+        :param store_detections: Whether to store last detections as instance property.
+            Helpful for visualization and debugging
         """
         self.model = model
 
@@ -74,6 +79,9 @@ class RFDETRClassifier(BaseClassifier):
 
         self.fps = fps
         self.lost_track_buffer = lost_track_buffer
+
+        self.store_detections = store_detections
+        self.last_detections: Detections | None = None
 
         self.tracker = ByteTrackTracker(
             frame_rate=self.fps,
@@ -159,7 +167,8 @@ class RFDETRClassifier(BaseClassifier):
                         center_xy=bbox_center.tolist(),
                         class_name=det_class,
                     )
-
+        if self.store_detections:
+            self.last_detections = deepcopy(detections)
         return self._prep_return(detections.tracker_id.tolist())
 
     def reset(self) -> None:
