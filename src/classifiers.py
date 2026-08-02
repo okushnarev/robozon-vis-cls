@@ -12,6 +12,7 @@ class ReturnData:
     length: float
     width: float
     height: float
+    is_oversized: bool
     roundness: float
     is_round: bool
     center_xy: tuple[float, float]
@@ -21,9 +22,10 @@ class ReturnData:
 class BaseClassifier:
     def step(self, rgbd_img: np.ndarray) -> dict[int, ReturnData]:
         raise NotImplementedError
-    
+
     def reset(self) -> None:
         raise NotImplementedError
+
 
 class RFDETRClassifier(BaseClassifier):
     def __init__(
@@ -31,6 +33,8 @@ class RFDETRClassifier(BaseClassifier):
             model: RFDETR,
             detection_threshold: float,
             roundness_threshold: float,
+            lwh_min: tuple[float, float, float],
+            lwh_max: tuple[float, float, float],
             measurer: BaseMeasurer,
             margin_px: int,
             expand_px: int,
@@ -45,6 +49,8 @@ class RFDETRClassifier(BaseClassifier):
         :param roundness_threshold: Minimum ratio of the enclosing circle's radius
             to the inscribed circle's radius of the item's footprint to classify
             it as round
+        :param lwh_min: Minimum boundaries for item dimensions
+        :param lwh_max: Maximum boundaries for item dimensions
         :param measurer: The BaseMeasurer instance that implements measurements
             for length, width, height, and roundness
         :param margin_px: Margin around the image center line that defines the
@@ -60,6 +66,8 @@ class RFDETRClassifier(BaseClassifier):
 
         self.detection_threshold = detection_threshold
         self.roundness_threshold = roundness_threshold
+        self.lwh_min = np.sort(np.array(lwh_min))
+        self.lwh_max = np.sort(np.array(lwh_max))
         self.measurer = measurer
         self.margin_px = margin_px
         self.expand_px = expand_px
@@ -132,12 +140,20 @@ class RFDETRClassifier(BaseClassifier):
 
                     l, w, h, roundness = self.measurer.measure(det_depth[slice_idx])
 
+                    det_lwh = np.sort(np.array((l, w, h)))
+
+                    is_oversized = bool(
+                        (det_lwh < self.lwh_min).any()
+                        or (det_lwh > self.lwh_max).any()
+                    )
+
                     is_round = roundness > self.roundness_threshold
 
                     self.item_params[det_idx] = ReturnData(
                         length=l,
                         width=w,
                         height=h,
+                        is_oversized=is_oversized,
                         roundness=roundness,
                         is_round=is_round,
                         center_xy=bbox_center.tolist(),
@@ -145,10 +161,9 @@ class RFDETRClassifier(BaseClassifier):
                     )
 
         return self._prep_return(detections.tracker_id.tolist())
-    
+
     def reset(self) -> None:
         self.tracker.reset()
         self.item_params = {}
         self.img_shape_xy = None
         self.img_center = None
-        

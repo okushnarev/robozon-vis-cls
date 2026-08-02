@@ -36,6 +36,8 @@ if __name__ == '__main__':
         model=model,
         detection_threshold=0.5,
         roundness_threshold=0.8,
+        lwh_min=(0.01, 0.01, 0.01),
+        lwh_max=(0.45, 0.32, 0.32),
         measurer=measurer,
         margin_px=50,
         expand_px=10,
