@@ -1,5 +1,4 @@
 import json
-import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -9,13 +8,9 @@ import numpy as np
 import supervision as sv
 from tqdm import tqdm
 
-# Add project root to PATH
-if (project_root := str(Path.cwd())) not in sys.path:
-    sys.path.append(project_root)
-
-from src.classifiers import RFDETRClassifier
-from src.measure.measurers import ClassicMeasurer
-from src.wrappers import load_model
+from cls_system.classifiers import RFDETRClassifier
+from cls_system.measure.measurers import ClassicMeasurer
+from cls_system.wrappers import load_model
 
 
 def parse_args():

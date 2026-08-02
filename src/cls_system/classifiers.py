@@ -6,7 +6,7 @@ from rfdetr import RFDETR
 from trackers import ByteTrackTracker
 from supervision import Detections
 
-from src.measure.measurers import BaseMeasurer
+from cls_system.measure.measurers import BaseMeasurer
 
 
 @dataclass

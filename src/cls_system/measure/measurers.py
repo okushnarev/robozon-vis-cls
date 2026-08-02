@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-from src.measure.classic_measure import depth_mask, get_lwh, get_roundness
-from src.projection import compute_grid_mapping, rasterize_depth
+from cls_system.measure.classic_measure import depth_mask, get_lwh, get_roundness
+from cls_system.projection import compute_grid_mapping, rasterize_depth
 
 
 class BaseMeasurer:

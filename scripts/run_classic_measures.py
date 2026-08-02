@@ -1,20 +1,13 @@
-import sys
-from pathlib import Path
-
-import pandas as pd
-
-# Add project root to PATH
-if (project_root := str(Path.cwd())) not in sys.path:
-    sys.path.append(project_root)
-
 import json
-from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from pathlib import Path
 from typing import Any
 
 import h5py
 import numpy as np
+import pandas as pd
 
-from src.measure.classic_measure import depth_mask, get_lwh, get_roundness
+from cls_system import depth_mask, get_lwh, get_roundness
 
 
 def parse_args():

@@ -3,7 +3,7 @@ import logging
 import cv2
 import numpy as np
 
-from src.projection import unproject_depth
+from cls_system.projection import unproject_depth
 
 logger = logging.getLogger(__name__)
 
