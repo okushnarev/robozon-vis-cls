@@ -20,16 +20,16 @@ if __name__ == '__main__':
 
     measurer = ClassicMeasurer(
         camera_height=1,
-        height_thresh=0.07,
+        height_thresh=0.01,
         intrinsics=intrinsics,
     )
 
-    ckpt_dir = Path('checkpoints/default/')
-    ckpt_type = 'checkpoint_best_total'
+    ckpt_dir = Path('checkpoints/seg_1/')
+    ckpt_type = 'last.ckpt'
     model = load_model(
         ckpt_dir=ckpt_dir,
         ckpt_type=ckpt_type,
-        mode='detection',
+        mode='segmentation',
     )
 
     cls = RFDETRClassifier(
