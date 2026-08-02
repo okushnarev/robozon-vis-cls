@@ -45,7 +45,10 @@ def load_model(
         mode: ModelMode,
 ) -> RFDETR:
     config_path = ckpt_dir / 'training_config.json'
-    weights_path = ckpt_dir / f'{ckpt_type}.pth'
+    if '.' in ckpt_type:
+        weights_path = ckpt_dir / ckpt_type
+    else:
+        weights_path = ckpt_dir / f'{ckpt_type}.pth'
 
     if not config_path.exists():
         raise FileNotFoundError(f'Configuration file not found at: {config_path}')
